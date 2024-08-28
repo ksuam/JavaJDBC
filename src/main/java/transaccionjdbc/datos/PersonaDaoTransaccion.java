@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package manejojdbc.datos;
+package transaccionjdbc.datos;
 
+import manejojdbc.datos.*;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -14,12 +15,21 @@ import manejojdbc.domain.Persona;
  *
  * @author SUA
  */
-public class PersonaDAO {
-
+public class PersonaDaoTransaccion {
+    private Connection conexionTransaccional; //Creamos una variable de tipo conexion para recibir una transaccion de afuera
     private static final String SQL_SELECT = "SELECT*FROM persona";
     private static final String SQL_INSERT = "INSERT INTO persona (nombre, apellido, email, telefono) VALUES (?, ?, ?, ?)";
     private static final String SQL_UPDATE = "UPDATE persona SET nombre = ?, apellido = ?, email = ?, telefono = ? WHERE id_persona = ?";
-
+    
+    //Constructor vacio
+    public PersonaDaoTransaccion(){
+        
+    }
+    
+    //Constructo para recibir la variable de conexion
+    public PersonaDaoTransaccion(Connection conexionTransaccional){
+        this.conexionTransaccional = conexionTransaccional;
+    }
     public List<Persona> seleccionar() {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -28,7 +38,7 @@ public class PersonaDAO {
         Persona persona = null;
 
         try {
-            conn = Conexion.getConection(); //se realiza  la conexion llamando al metodo de la clase conexion
+            conn = this.conexionTransaccional != null ? this.conexionTransaccional : Conexion.getConection(); // Si la variable de conexionTransaccional es diferente de ulo, usela, de lo contrario, obenga la conexion de manera mas organica
             stmt = conn.prepareStatement(SQL_SELECT); // Se prepara el query
             rs = stmt.executeQuery(); //Se ejecuta el query
 
@@ -47,12 +57,17 @@ public class PersonaDAO {
             ex.printStackTrace(System.out);
         } finally {
             try {
-                Conexion.close(conn); //Se cierra la conexion
+                
                 Conexion.close(rs); //Se cierra el resultado
                 Conexion.close(stmt); //Se cierra statement
+                
+                if(this.conexionTransaccional == null)
+                {
+                    Conexion.close(conn); //Se cierra la conexion
+                }
 
             } catch (SQLException ex) {
-                Logger.getLogger(PersonaDAO.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(PersonaDaoTransaccion.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }
@@ -64,7 +79,7 @@ public class PersonaDAO {
         PreparedStatement stmt = null;
         int registros = 0;
         try {
-            conn = Conexion.getConection(); //obtiene la conexion
+            conn = this.conexionTransaccional != null ? this.conexionTransaccional : Conexion.getConection(); // Si la variable de conexionTransaccional es diferente de ulo, usela, de lo contrario, obenga la conexion de manera mas organica
             stmt = conn.prepareStatement(SQL_INSERT); // prepara el query con el insert de arriba
             stmt.setString(1, persona.getNombre()); //obtiene el nombre del objeto que se le paso y lo setea en la variable 1 arriba en el insert
             stmt.setString(2, persona.getApellido());//obtiene el apellido del objeto que se le paso y lo setea en la variable 1 arriba en el insert
@@ -75,7 +90,10 @@ public class PersonaDAO {
             ex.printStackTrace(System.out);
         } finally {
             try {
-                Conexion.close(conn); //Se cierra la conexion
+                if(this.conexionTransaccional == null)
+                {
+                    Conexion.close(conn); //Se cierra la conexion
+                }
             } catch (SQLException ex) {
 
             }
@@ -97,7 +115,7 @@ public class PersonaDAO {
 
         try {
 
-            conn = Conexion.getConection();
+            conn = this.conexionTransaccional != null ? this.conexionTransaccional : Conexion.getConection(); // Si la variable de conexionTransaccional es diferente de ulo, usela, de lo contrario, obenga la conexion de manera mas organica
             stmt = conn.prepareStatement(SQL_UPDATE);
 
             stmt.setString(1, persona.getNombre()); //obtiene el nombre del objeto que se le paso y lo setea en la variable 1 arriba en el insert
@@ -110,7 +128,10 @@ public class PersonaDAO {
             ex.printStackTrace(System.out);
         } finally {
             try {
-                Conexion.close(conn);
+                if(this.conexionTransaccional == null)
+                {
+                    Conexion.close(conn); //Se cierra la conexion
+                }
             } catch (SQLException ex) {
                 ex.printStackTrace(System.out);
             }

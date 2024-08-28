@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package manejojdbc.datos;
+package transaccionjdbc.datos;
 
+import manejojdbc.datos.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.*;
@@ -12,7 +13,7 @@ import java.sql.*;
  *
  * @author SUA
  */
-public class Conexion {
+public class ConexionTransaccion {
     private static final String JDBC_URL = "jdbc:mysql://localhost:3306/test?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
     private static final String JDBC_USER = "root";
     private static final String JDBC_PASSWORD = "Tamaguchi13";
